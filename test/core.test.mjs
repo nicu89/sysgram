@@ -59,6 +59,15 @@ test('expanded view stays in-page and never invokes the browser Fullscreen API',
     /requestFullscreen|webkitRequestFullscreen|exitFullscreen|webkitExitFullscreen|fullscreenchange|webkitfullscreenchange|:fullscreen/);
 });
 
+test('expanded view escapes transformed host wrappers and restores its source position', () => {
+  assert.match(runtimeSource, /function portalExpandedFigure\(doc, figure\)/);
+  assert.match(runtimeSource, /doc\.body\.appendChild\(figure\)/);
+  assert.match(runtimeSource, /function restoreExpandedFigure\(figure\)/);
+  assert.match(runtimeSource, /marker\.parentNode\.insertBefore\(figure, marker\)/);
+  assert.match(runtimeSource, /portalExpandedFigure\(doc, figure\);[\s\S]*figure\.classList\.add\('sg-expanded'\)/);
+  assert.match(runtimeSource, /restoreExpandedFigure\(figure\);[\s\S]*figure\.classList\.remove\('sg-expanded'\)/);
+});
+
 // ---------- parseSpec (JSONC leniency) ----------
 
 test('parses plain JSON', () => {

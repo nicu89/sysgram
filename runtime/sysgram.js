@@ -2712,6 +2712,28 @@
     doc.head.appendChild(el);
   }
 
+  // A transformed ancestor establishes the containing block for fixed-position
+  // descendants. Portal expanded figures to the body so host-page breakout
+  // wrappers cannot constrain the viewport overlay, then restore the exact DOM
+  // position from a marker when expanded view closes.
+  function portalExpandedFigure(doc, figure) {
+    if (figure._sysgramExpandedMarker || !figure.parentNode || !doc.body || figure.parentNode === doc.body) return;
+    var marker = doc.createComment('sysgram expanded view');
+    figure.parentNode.insertBefore(marker, figure);
+    figure._sysgramExpandedMarker = marker;
+    doc.body.appendChild(figure);
+  }
+
+  function restoreExpandedFigure(figure) {
+    var marker = figure._sysgramExpandedMarker;
+    if (!marker) return;
+    if (marker.parentNode) {
+      marker.parentNode.insertBefore(figure, marker);
+      marker.parentNode.removeChild(marker);
+    }
+    figure._sysgramExpandedMarker = null;
+  }
+
   function svgEl(doc, name, attrs, parent) {
     var el = doc.createElementNS(SVG_NS, name);
     if (attrs) Object.keys(attrs).forEach(function (k) {
@@ -3582,11 +3604,13 @@
       fullBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
     }
     function enterFull() {
+      portalExpandedFigure(doc, figure);
       figure.classList.add('sg-expanded');
       fit();
       updateFullButton();
     }
     function exitFull() {
+      restoreExpandedFigure(figure);
       figure.classList.remove('sg-expanded');
       fit();
       updateFullButton();

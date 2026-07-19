@@ -258,11 +258,14 @@ group, or edge to pin an inspector panel (description, facts, connections) — c
 again, the ×, or empty canvas to release. Flow chips and assertion rows pin the same
 spotlight mechanism. Nodes with `href` navigate instead of inspecting. The expand
 control fills the page viewport while leaving the browser chrome visible; it never uses
-the browser Fullscreen API. Expanded state survives layout-lens rerenders and switching
-away from the browser tab, and exits only from the control or the Escape key. The
-embedded spec and page source remain unchanged. At 100% fit the canvas has no scrollbars;
-zooming beyond the fitted width or height enables that axis's native scrollbar
-independently, while **fit** returns both axes to 100%.
+the browser Fullscreen API. While expanded, the runtime temporarily portals the figure
+to `document.body`, escaping transformed host-page wrappers that would otherwise constrain
+its fixed viewport positioning, and restores the figure to its exact source position on
+exit. Expanded state survives layout-lens rerenders and switching away from the browser
+tab, and exits only from the control or the Escape key. The embedded spec and page source
+remain unchanged. At 100% fit the canvas has no scrollbars; zooming beyond the fitted
+width or height enables that axis's native scrollbar independently, while **fit** returns
+both axes to 100%.
 
 ## Layout model (what the engine does)
 
