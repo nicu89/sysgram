@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fictional architecture example — Sysgram</title>
+<style>
+  body { margin: 2.5rem auto 5rem; max-width: 1060px; padding: 0 1.2rem;
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         background: #fff; color: #171a21; line-height: 1.55; }
+  h1 { font-size: 1.45rem; }
+  p.note { color: #5a6372; font-size: .88rem; max-width: 78ch; }
+</style>
+</head>
+<body>
+<h1>Paper Moon Archive</h1>
+<p class="note"><strong>Fictional example.</strong> Paper Moon Archive is an invented
+digital library used to exercise compound layout, trust boundaries, event delivery,
+storage isolation, flows, facts, and machine-checked assertions. It represents no real
+organization or production system.</p>
+
+<script type="application/sysgram+json" data-sysgram-theme="light" data-sysgram-layout-picker>
+{
+  "sysgram": "1",
+  "id": "paper-moon-architecture",
+  "title": "Paper Moon Archive",
+  "description": "Readers and curators use a web portal backed by an API and relational catalog. Committed catalog changes leave through an outbox and event bus, workers index documents and send notices, uploads are scanned before entering object storage, and a separate audit vault has no data path to public documents.",
+  "caption": "Fictional reference architecture. Accent marks authoritative state; amber short-dash connections are untrusted webhook hints; the isolation mark declares that public objects and audit evidence have no data path between them.",
+  "direction": "right",
+  "accent": "#4257d6",
+  "meta": { "fictional": true, "example": "compound architecture" },
+  "nodes": [
+    { "id": "reader", "label": "Reader", "kind": "user", "sub": "paper-moon.invalid" },
+    { "id": "curator", "label": "Curator", "kind": "user", "sub": "review workspace" },
+    { "id": "portal", "label": "Web portal", "kind": "browser", "sub": "pages · search · uploads" },
+    { "id": "identity", "label": "Keybird Identity", "kind": "external", "sub": "fictional OIDC provider" },
+
+    { "id": "gateway", "label": "Edge gateway", "kind": "lb", "sub": "TLS · quotas" },
+    { "id": "api", "label": "Archive API", "kind": "service", "tone": "accent", "tint": true,
+      "sub": "policy · catalog commands", "facts": { "authority": "command boundary", "protocol": "HTTP/JSON" } },
+    { "id": "catalog", "label": "Catalog database", "kind": "datastore", "tone": "accent", "tint": true,
+      "sub": "records · permissions · outbox", "facts": { "consistency": "transactional", "authority": "system of record" } },
+    { "id": "outbox", "label": "Outbox relay", "kind": "worker", "sub": "committed rows only" },
+    { "id": "events", "label": "Event bus", "kind": "bus", "sub": "topic routing" },
+    { "id": "jobs", "label": "Job queue", "kind": "queue", "sub": "at-least-once · DLQ" },
+    { "id": "indexer", "label": "Index worker", "kind": "worker", "sub": "extract · tokenize · index" },
+    { "id": "search", "label": "Search index", "kind": "datastore", "sub": "derived · rebuildable" },
+    { "id": "scanner", "label": "File scanner", "kind": "function", "sub": "quarantine gate" },
+    { "id": "objects", "label": "Document objects", "kind": "storage", "sub": "private originals · previews" },
+    { "id": "vault", "label": "Audit vault", "kind": "vault", "tone": "accent", "tint": true,
+      "sub": "append-only evidence", "facts": { "retention": "seven fictional years", "encryption": "separate key" } },
+    { "id": "mailer", "label": "Moonpost", "kind": "external", "sub": "fictional email provider" },
+    { "id": "telemetry", "label": "Telemetry", "kind": "observability", "band": true,
+      "sub": "metrics · traces · audit counters" }
+  ],
+  "groups": [
+    { "id": "people", "label": "Clients", "kind": "lane", "children": ["reader", "curator", "portal"] },
+    { "id": "platform", "label": "Archive platform", "kind": "account", "style": "tint", "tone": "accent",
+      "direction": "down", "children": ["gateway", "api", "catalog", "outbox", "events", "jobs", "indexer", "search", "scanner", "objects", "vault", "telemetry"] },
+    { "id": "providers", "label": "Hosted providers · untrusted inputs", "kind": "trust-boundary", "style": "dashed",
+      "children": ["identity", "mailer"] }
+  ],
+  "edges": [
+    { "id": "reader-portal", "from": "reader", "to": "portal", "kind": "sync" },
+    { "id": "curator-portal", "from": "curator", "to": "portal", "kind": "sync" },
+    { "id": "portal-identity", "from": "portal", "to": "identity", "kind": "auth", "label": "OIDC + PKCE" },
+    { "id": "portal-gateway", "from": "portal", "to": "gateway", "kind": "sync", "label": "HTTPS" },
+    { "id": "gateway-api", "from": "gateway", "to": "api", "kind": "sync" },
+    { "id": "api-catalog", "from": "api", "to": "catalog", "kind": "data", "label": "guarded transaction" },
+    { "id": "catalog-outbox", "from": "catalog", "to": "outbox", "kind": "async", "label": "committed rows" },
+    { "id": "outbox-events", "from": "outbox", "to": "events", "kind": "async", "label": "publish" },
+    { "id": "events-jobs", "from": "events", "to": "jobs", "kind": "async", "label": "route" },
+    { "id": "jobs-indexer", "from": "jobs", "to": "indexer", "kind": "async", "label": "consume" },
+    { "id": "indexer-search", "from": "indexer", "to": "search", "kind": "data", "label": "upsert" },
+    { "id": "api-search", "from": "api", "to": "search", "kind": "sync", "label": "query" },
+    { "id": "portal-objects", "from": "portal", "to": "objects", "kind": "data", "label": "direct upload" },
+    { "id": "objects-scanner", "from": "objects", "to": "scanner", "kind": "async", "label": "object event" },
+    { "id": "scanner-api", "from": "scanner", "to": "api", "kind": "webhook", "label": "scan result hint" },
+    { "id": "events-mailer", "from": "events", "to": "mailer", "kind": "async", "label": "notification" },
+    { "id": "objects-vault", "from": "objects", "to": "vault", "kind": "isolation" }
+  ],
+  "flows": [
+    { "id": "read", "label": "Read the catalog", "steps": ["reader-portal", "portal-gateway", "gateway-api", "api-search"] },
+    { "id": "publish", "label": "Commit to derived index", "steps": ["api-catalog", "catalog-outbox", "outbox-events", "events-jobs", "jobs-indexer", "indexer-search"] },
+    { "id": "upload", "label": "Upload and scan", "steps": ["curator-portal", "portal-objects", "objects-scanner", "scanner-api", "api-catalog"] }
+  ],
+  "assertions": [
+    { "id": "committed-events", "text": "Catalog events reach the bus only through the outbox relay after the database transaction commits.",
+      "refs": ["catalog", "outbox", "events"], "rule": { "kind": "only-via", "from": "catalog", "to": "events", "via": "outbox" } },
+    { "id": "vault-isolated", "text": "Public document objects and audit evidence use separate storage paths with no connection in either direction.",
+      "refs": ["objects", "vault", "objects-vault"], "rule": { "kind": "forbid-path", "from": "objects", "to": "vault", "both": true } },
+    { "id": "api-authority", "text": "The API is the only component allowed to write catalog state.",
+      "refs": ["api", "catalog"], "rule": { "kind": "require-edge", "from": "api", "to": "catalog", "edgeKind": "data" } }
+  ]
+}
+</script>
+
+<script src="../runtime/sysgram.js"></script>
+</body>
+</html>

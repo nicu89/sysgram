@@ -1,0 +1,39 @@
+{
+  "name": "sysgram",
+  "version": "0.1.0",
+  "description": "Dependency-free declarative system diagrams rendered from embedded JSON specs.",
+  "main": "runtime/sysgram.js",
+  "exports": {
+    ".": "./runtime/sysgram.js",
+    "./runtime": "./runtime/sysgram.js",
+    "./schema": "./schema/sysgram.schema.json"
+  },
+  "bin": {
+    "sysgram-check": "scripts/check.mjs"
+  },
+  "files": [
+    "runtime/",
+    "schema/",
+    "scripts/",
+    "assets/",
+    "SPEC.md",
+    "LAYOUT.md",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test test/core.test.mjs",
+    "check": "node scripts/check.mjs",
+    "check:strict": "node scripts/check.mjs --strict",
+    "check:metrics": "node scripts/check.mjs --metrics"
+  },
+  "keywords": [
+    "architecture",
+    "diagram",
+    "svg",
+    "system-design",
+    "visualization"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

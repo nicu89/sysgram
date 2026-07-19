@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sysgram — gallery</title>
+<style>
+  body { margin: 2.5rem auto 5rem; max-width: 1060px; padding: 0 1.2rem;
+         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         background: #fff; color: #171a21; line-height: 1.5; }
+  h1 { font-size: 1.5rem; } h2 { font-size: 1.05rem; margin-top: 2.6rem; }
+  p.note { color: #5a6372; font-size: .85rem; max-width: 70ch; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: .85em;
+         background: rgba(120,132,158,.12); padding: .1em .35em; border-radius: 4px; }
+  /* demo pages are deliberately white-themed; diagram #11 shows the dark palette */
+</style>
+</head>
+<body>
+<h1>sysgram gallery</h1>
+<p class="note">One diagram per capability. Every figure below is generated from the JSON
+spec right above it in this file's source — view source (or <code>Read</code> the file) to
+see exactly how each effect is authored. Hover nodes or edges to trace them; <b>click</b>
+anything to pin an inspector with its facts and connections; drag to pan; ⌘/ctrl-scroll
+or the toolbar to zoom.</p>
+
+<h2>1 · Node kinds</h2>
+<p class="note">Every archetype in the catalog. Shape + glyph carry the meaning, so kinds
+survive grayscale and colorblindness. <code>rank</code>/<code>order</code> hints arrange the
+grid — the only time hints are routinely needed is edge-less diagrams like this one.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "kinds",
+  "title": "Node kind catalog",
+  "legend": false,
+  "nodes": [
+    { "id": "k-service",  "label": "service",  "kind": "service",  "rank": 0, "order": 0 },
+    { "id": "k-browser",  "label": "browser",  "kind": "browser",  "rank": 1, "order": 0 },
+    { "id": "k-user",     "label": "user",     "kind": "user",     "rank": 2, "order": 0 },
+    { "id": "k-datastore","label": "datastore","kind": "datastore","rank": 3, "order": 0 },
+    { "id": "k-cache",    "label": "cache",    "kind": "cache",    "rank": 4, "order": 0 },
+    { "id": "k-queue",    "label": "queue",    "kind": "queue",    "rank": 0, "order": 1 },
+    { "id": "k-bus",      "label": "bus",      "kind": "bus",      "rank": 1, "order": 1 },
+    { "id": "k-worker",   "label": "worker",   "kind": "worker",   "rank": 2, "order": 1 },
+    { "id": "k-scheduler","label": "scheduler","kind": "scheduler","rank": 3, "order": 1 },
+    { "id": "k-storage",  "label": "storage",  "kind": "storage",  "rank": 4, "order": 1 },
+    { "id": "k-vault",    "label": "vault",    "kind": "vault",    "rank": 0, "order": 2 },
+    { "id": "k-email",    "label": "email",    "kind": "email",    "rank": 1, "order": 2 },
+    { "id": "k-auth",     "label": "auth",     "kind": "auth",     "rank": 2, "order": 2 },
+    { "id": "k-lb",       "label": "lb",       "kind": "lb",       "rank": 3, "order": 2 },
+    { "id": "k-cdn",      "label": "cdn",      "kind": "cdn",      "rank": 4, "order": 2 },
+    { "id": "k-function", "label": "function", "kind": "function", "rank": 0, "order": 3 },
+    { "id": "k-ai",       "label": "ai",       "kind": "ai",       "rank": 1, "order": 3 },
+    { "id": "k-external", "label": "external", "kind": "external", "rank": 2, "order": 3 },
+    { "id": "k-obs",      "label": "observability", "kind": "observability", "rank": 3, "order": 3 },
+    { "id": "k-note",     "label": "note",     "kind": "note",     "rank": 4, "order": 3 }
+  ]
+}
+</script>
+
+<h2>2 · Catalog icons (SVG)</h2>
+<p class="note">Real product artwork via <code>iconCatalog</code> + per-node <code>icon</code>
+(one or two per node). Icons are optional presentation metadata — meaning always comes from
+<code>kind</code>, and a missing file falls back to the semantic glyph. Provenance for these
+AWS icons: <a href="../assets/aws/README.md">assets/aws/README.md</a>.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "icons",
+  "title": "Icon catalog",
+  "legend": false,
+  "iconCatalog": {
+    "aws-fargate": { "src": "../assets/aws/aws-fargate.svg", "label": "AWS Fargate" },
+    "amazon-rds": { "src": "../assets/aws/amazon-rds.svg", "label": "Amazon RDS" },
+    "amazon-cloudfront": { "src": "../assets/aws/amazon-cloudfront.svg", "label": "Amazon CloudFront" },
+    "aws-lambda": { "src": "../assets/aws/aws-lambda.svg", "label": "AWS Lambda" },
+    "amazon-sqs": { "src": "../assets/aws/amazon-sqs.svg", "label": "Amazon SQS" }
+  },
+  "nodes": [
+    { "id": "ic-edge", "label": "Edge app", "kind": "service", "icon": ["amazon-cloudfront", "aws-lambda"],
+      "sub": "two icons: CloudFront + Lambda" },
+    { "id": "ic-api", "label": "API", "kind": "service", "icon": "aws-fargate", "tone": "accent" },
+    { "id": "ic-q", "label": "Jobs", "kind": "queue", "icon": "amazon-sqs" },
+    { "id": "ic-db", "label": "Postgres", "kind": "datastore", "icon": "amazon-rds" },
+    { "id": "ic-plain", "label": "No icon", "kind": "service", "sub": "semantic glyph fallback" }
+  ],
+  "edges": [
+    { "from": "ic-edge", "to": "ic-api" },
+    { "from": "ic-api", "to": "ic-db", "label": "SQL" },
+    { "from": "ic-api", "to": "ic-q", "kind": "async" },
+    { "from": "ic-q", "to": "ic-plain", "kind": "dep" }
+  ]
+}
+</script>
+
+<h2>3 · Edge kinds</h2>
+<p class="note">The full connection taxonomy — dash pattern + arrowhead + weight carry the
+meaning, color only reinforces. Note the domain-specific kinds: <code>webhook</code> is a
+hint (amber, never truth), <code>isolation</code> is a deliberate non-connection with a ⫽
+mark. <code>both:true</code> puts heads on both ends; <code>tone</code> recolors one edge.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "edge-kinds",
+  "title": "Edge kind grammar",
+  "legend": true,
+  "nodes": [
+    { "id": "s1", "label": "caller",   "order": 0 }, { "id": "t1", "label": "callee",     "order": 0 },
+    { "id": "s2", "label": "producer", "order": 1 }, { "id": "t2", "label": "consumer",   "order": 1 },
+    { "id": "s3", "label": "source",   "order": 2 }, { "id": "t3", "label": "sink",       "order": 2 },
+    { "id": "s4", "label": "app",      "order": 3 }, { "id": "t4", "label": "library",    "order": 3 },
+    { "id": "s5", "label": "twin a",   "order": 4 }, { "id": "t5", "label": "twin b",     "order": 4 },
+    { "id": "s6", "label": "peer a",   "order": 5 }, { "id": "t6", "label": "peer b",     "order": 5 },
+    { "id": "s7", "label": "provider", "order": 6 }, { "id": "t7", "label": "ingest",     "order": 6 },
+    { "id": "s8", "label": "idp",      "order": 7 }, { "id": "t8", "label": "app",        "order": 7 },
+    { "id": "s9", "label": "cron",     "order": 8 }, { "id": "t9", "label": "job",        "order": 8 },
+    { "id": "s10", "label": "svc",     "order": 9 }, { "id": "t10", "label": "otel",      "order": 9 },
+    { "id": "s11", "label": "bucket a","order": 10 }, { "id": "t11", "label": "bucket b", "order": 10 }
+  ],
+  "edges": [
+    { "from": "s1", "to": "t1", "kind": "sync",  "label": "sync" },
+    { "from": "s2", "to": "t2", "kind": "async", "label": "async" },
+    { "from": "s3", "to": "t3", "kind": "data",  "label": "data" },
+    { "from": "s4", "to": "t4", "kind": "dep",   "label": "dep" },
+    { "from": "s5", "to": "t5", "kind": "assoc", "label": "assoc" },
+    { "from": "s6", "to": "t6", "kind": "sync",  "label": "both", "both": true },
+    { "from": "s7", "to": "t7", "kind": "webhook",   "label": "webhook" },
+    { "from": "s8", "to": "t8", "kind": "auth",      "label": "auth" },
+    { "from": "s9", "to": "t9", "kind": "schedule",  "label": "schedule" },
+    { "from": "s10", "to": "t10", "kind": "telemetry", "label": "telemetry" },
+    { "from": "s11", "to": "t11", "kind": "isolation", "label": "isolation" }
+  ]
+}
+</script>
+
+<h2>4 · Zones, nesting, mixed directions</h2>
+<p class="note">Groups contain nodes or other groups. Each group may set its own
+<code>direction</code> — mixing axes is the main tool for compact layouts. Styles:
+<code>dashed</code> (permeable), <code>solid</code> (hard boundary), <code>tint</code>
+(filled region).</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "zones",
+  "title": "Zones and nesting",
+  "nodes": [
+    { "id": "client", "label": "Client", "kind": "browser" },
+    { "id": "edge-lb", "label": "Edge LB", "kind": "lb" },
+    { "id": "svc-a", "label": "Service A", "kind": "service" },
+    { "id": "svc-b", "label": "Service B", "kind": "service" },
+    { "id": "core-db", "label": "Core DB", "kind": "datastore", "tone": "accent" },
+    { "id": "billing", "label": "Billing SaaS", "kind": "external" }
+  ],
+  "groups": [
+    { "id": "cloud", "label": "Cloud account", "sub": "our-org · prod", "style": "tint",
+      "children": ["edge-lb", "vpc"], "direction": "down" },
+    { "id": "vpc", "label": "VPC", "style": "dashed", "children": ["svc-a", "svc-b", "core-db"],
+      "direction": "right" }
+  ],
+  "edges": [
+    { "from": "client", "to": "edge-lb", "label": "HTTPS" },
+    { "from": "edge-lb", "to": "svc-a" },
+    { "from": "edge-lb", "to": "svc-b" },
+    { "from": "svc-a", "to": "core-db", "label": "SQL" },
+    { "from": "svc-b", "to": "core-db", "label": "SQL" },
+    { "from": "svc-b", "to": "billing", "kind": "async", "label": "usage events", "labelAt": 0.78 }
+  ]
+}
+</script>
+
+<h2>5 · Bands (cross-cutting concerns)</h2>
+<p class="note"><code>"band": true</code> pulls a node out of the flow and stretches it
+across its container's full width at the bottom — for observability, compliance, and other
+everything-touches-it strips.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "bands",
+  "title": "Cross-cutting band",
+  "nodes": [
+    { "id": "ing", "label": "Ingress", "kind": "lb" },
+    { "id": "app", "label": "App", "kind": "service" },
+    { "id": "jobs", "label": "Jobs", "kind": "worker" },
+    { "id": "db", "label": "DB", "kind": "datastore" },
+    { "id": "otel", "label": "Observability", "kind": "observability", "band": true,
+      "sub": "OTel SDK everywhere · logs · traces · metrics" }
+  ],
+  "groups": [
+    { "id": "prod", "label": "Production", "children": ["ing", "app", "jobs", "db", "otel"] }
+  ],
+  "edges": [
+    { "from": "ing", "to": "app" },
+    { "from": "app", "to": "db" },
+    { "from": "app", "to": "jobs", "kind": "async" }
+  ]
+}
+</script>
+
+<h2>6 · Steps and flows</h2>
+<p class="note"><code>step</code> numbers a single edge; <code>flows</code> name ordered
+edge sequences and become clickable chips that spotlight their path. Click a chip, then
+click it again to release.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "story",
+  "title": "Checkout, told in steps",
+  "nodes": [
+    { "id": "shopper", "label": "Shopper", "kind": "user" },
+    { "id": "shop", "label": "Storefront", "kind": "browser" },
+    { "id": "orders", "label": "Orders API", "kind": "service", "tone": "accent" },
+    { "id": "odb", "label": "Orders DB", "kind": "datastore" },
+    { "id": "q", "label": "Fulfilment queue", "kind": "queue" },
+    { "id": "mail", "label": "Receipts", "kind": "email" }
+  ],
+  "edges": [
+    { "id": "s-browse", "from": "shopper", "to": "shop",   "step": 1, "label": "buy" },
+    { "id": "s-call",   "from": "shop",    "to": "orders", "step": 2, "label": "POST /orders" },
+    { "id": "s-write",  "from": "orders",  "to": "odb",    "step": 3, "label": "insert" },
+    { "id": "s-enq",    "from": "orders",  "to": "q",      "step": 4, "kind": "async", "label": "order.created" },
+    { "id": "s-mail",   "from": "q",       "to": "mail",   "step": 5, "kind": "async" }
+  ],
+  "flows": [
+    { "id": "buy-path", "label": "Purchase path", "steps": ["s-browse", "s-call", "s-write"],
+      "desc": "The synchronous part the shopper waits on." },
+    { "id": "after", "label": "After the 200", "steps": ["s-enq", "s-mail"],
+      "desc": "Everything downstream of the transaction." }
+  ]
+}
+</script>
+
+<h2>7 · Tones, tints, badges, links</h2>
+<p class="note"><code>tone</code> recolors border + title (accent / warn / muted);
+<code>tint</code> fills the body; <code>badges</code> are tiny mono pills;
+<code>href</code> makes the node a link (this one opens the SPEC).</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "tones",
+  "title": "Emphasis toolkit",
+  "legend": false,
+  "nodes": [
+    { "id": "plain", "label": "Default", "sub": "no emphasis" },
+    { "id": "hero", "label": "Accent + tint", "tone": "accent", "tint": true,
+      "sub": "the thing the diagram is about" },
+    { "id": "risky", "label": "Warn tone", "tone": "warn", "badges": ["PII", "audit"],
+      "sub": "handle with care" },
+    { "id": "side", "label": "Muted", "tone": "muted", "sub": "background character" },
+    { "id": "linked", "label": "Linked node", "badges": ["docs"], "href": "../SPEC.md",
+      "sub": "click me", "desc": "href turns the whole node into a link." }
+  ],
+  "edges": [
+    { "from": "plain", "to": "hero" },
+    { "from": "hero", "to": "risky", "tone": "warn", "label": "escalate" },
+    { "from": "hero", "to": "side", "kind": "dep" },
+    { "from": "hero", "to": "linked", "kind": "assoc" }
+  ]
+}
+</script>
+
+<h2>8 · Routing</h2>
+<p class="note">Default routing is a curve; <code>ortho</code> gives right-angle runs with
+rounded corners, <code>straight</code> a direct line. Set per edge. With
+<code>route:"smart"</code> (the default) an <code>auto</code> edge whose curve would cross
+an unrelated node reroutes itself orthogonally around it — the <code>skip</code> edge
+below detours instead of lancing the middle node.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "avoidance",
+  "title": "Collision avoidance",
+  "legend": false,
+  "nodes": [
+    { "id": "av-a", "label": "Start" },
+    { "id": "av-b", "label": "In the way" },
+    { "id": "av-c", "label": "Goal" }
+  ],
+  "edges": [
+    { "from": "av-a", "to": "av-b" },
+    { "from": "av-b", "to": "av-c" },
+    { "id": "skip", "from": "av-a", "to": "av-c", "kind": "async", "label": "detours" }
+  ]
+}
+</script>
+<p class="note">Explicit styles, side by side:</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "routing",
+  "title": "Routing styles",
+  "legend": false,
+  "nodes": [
+    { "id": "r-src", "label": "Source" },
+    { "id": "r-curve", "label": "curve", "order": 0 },
+    { "id": "r-ortho", "label": "ortho", "order": 1 },
+    { "id": "r-straight", "label": "straight", "order": 2 },
+    { "id": "r-far", "label": "Two ranks away", "rank": 2, "order": 3 }
+  ],
+  "edges": [
+    { "from": "r-src", "to": "r-curve", "routing": "curve", "label": "curve" },
+    { "from": "r-src", "to": "r-ortho", "routing": "ortho", "label": "ortho" },
+    { "from": "r-src", "to": "r-straight", "routing": "straight", "label": "straight" },
+    { "from": "r-src", "to": "r-far", "routing": "ortho", "label": "long ortho" }
+  ]
+}
+</script>
+
+<h2>9 · Facts, assertions, and the inspector</h2>
+<p class="note"><code>facts</code> attach structured semantics (protocol, trust,
+consistency…) to nodes and edges — hover for the tooltip, <b>click</b> for the inspector
+panel. <code>assertions</code> record rules no arrow can draw; ones with
+<code>refs</code> spotlight their subjects when clicked. An assertion may add an
+executable <code>rule</code> (<code>forbid-edge</code> / <code>forbid-path</code> /
+<code>only-via</code> / <code>require-edge</code>) — the validator proves it against the
+edge graph and the row wears a "✓ machine-checked" chip; if the diagram ever
+contradicts it, validation errors. The provider sits in a <code>trust-boundary</code>
+group (amber by default): crossing that border is what the webhook rules are about.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "semantics",
+  "title": "Facts and assertions",
+  "nodes": [
+    { "id": "api2", "label": "API", "kind": "service", "tone": "accent",
+      "desc": "The only writer.",
+      "facts": { "owner": "platform team", "authority": "system of record" } },
+    { "id": "ledger", "label": "Ledger", "kind": "datastore",
+      "facts": { "engine": "Postgres 17", "retention": "append-only, never deleted" } },
+    { "id": "mirror", "label": "Analytics mirror", "kind": "datastore", "tone": "muted" },
+    { "id": "hooks", "label": "Provider", "kind": "external" }
+  ],
+  "groups": [
+    { "id": "outside", "label": "Outside the trust boundary", "kind": "trust-boundary",
+      "children": ["hooks"],
+      "desc": "Crossing this border means trust changes: nothing arriving from here is authoritative." }
+  ],
+  "edges": [
+    { "id": "api-ledger", "from": "api2", "to": "ledger", "kind": "data", "label": "SQL",
+      "facts": { "protocol": "PostgreSQL wire", "mode": "synchronous", "consistency": "transactional" } },
+    { "id": "ledger-mirror", "from": "ledger", "to": "mirror", "kind": "data", "label": "CDC",
+      "facts": { "delivery": "at-least-once", "lag": "seconds" } },
+    { "id": "hook-in", "from": "hooks", "to": "api2", "kind": "webhook", "label": "hints",
+      "facts": { "trust": "hint — re-fetch before acting", "idempotency": "required" } }
+  ],
+  "assertions": [
+    { "id": "ledger-append", "text": "The ledger is append-only: events are never updated or deleted.",
+      "refs": ["ledger", "api-ledger"] },
+    { "id": "hints-only", "text": "Webhook payloads are hints; state changes only after an authoritative re-fetch.",
+      "refs": ["hook-in"] },
+    { "id": "ledger-via-api", "text": "Provider data reaches the ledger only through the API.",
+      "refs": ["hooks", "api2", "ledger"],
+      "rule": { "kind": "only-via", "from": "hooks", "to": "ledger", "via": "api2" } },
+    { "id": "mirror-derived", "text": "The mirror is derived data — nothing ever flows back from it.",
+      "refs": ["mirror"],
+      "rule": { "kind": "forbid-path", "from": "mirror", "to": "ledger" } }
+  ]
+}
+</script>
+
+<h2>10 · Manual arrangement</h2>
+<p class="note"><code>"arrange": "manual"</code> switches to authored <code>at: [x, y]</code>
+coordinates for carefully composed reference views. Sizes are still computed (labels never
+clip), groups still fit their members, and edges still route smartly — it stays a semantic
+graph, not a drawing. Prefer auto + hints everywhere else.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "manual-demo",
+  "title": "Manually composed",
+  "arrange": "manual",
+  "legend": false,
+  "nodes": [
+    { "id": "m-user", "label": "User", "kind": "user", "at": [0, 70] },
+    { "id": "m-web", "label": "Web", "kind": "browser", "at": [180, 0] },
+    { "id": "m-api", "label": "API", "kind": "service", "tone": "accent", "at": [180, 140] },
+    { "id": "m-db", "label": "DB", "kind": "datastore", "at": [400, 70] }
+  ],
+  "groups": [
+    { "id": "m-cloud", "label": "Cloud", "children": ["m-web", "m-api", "m-db"] }
+  ],
+  "edges": [
+    { "from": "m-user", "to": "m-web" },
+    { "from": "m-user", "to": "m-api" },
+    { "from": "m-web", "to": "m-api", "fromSide": "b", "toSide": "t" },
+    { "from": "m-api", "to": "m-db", "label": "SQL" }
+  ]
+}
+</script>
+
+<h2>11 · Layout families</h2>
+<p class="note">The same little system rendered under each <code>layout</code> family.
+The family is <b>declared in the spec</b> — never a viewer control — so every reader and
+every agent sees the same picture. <code>layered</code> (default) fits flows;
+<code>tree</code> fits hierarchies (a node's parent is its first cycle-free in-edge, extra
+edges become cross-links); <code>radial</code> rings the highest-degree hub;
+<code>sequence</code> fits conversations — participants become lifelines, one row per
+message ordered by <code>step</code>, so many labeled calls between the same pair can
+never collide (that shape smears any topology layout). Tree, radial, and sequence are
+flat: groups/bands are a validation error there.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "fam-layered",
+  "title": "layout: layered (default)",
+  "legend": false,
+  "nodes": [
+    { "id": "fl-gw", "label": "Gateway", "kind": "lb", "tone": "accent" },
+    { "id": "fl-auth", "label": "Auth", "kind": "auth" },
+    { "id": "fl-cat", "label": "Catalog", "kind": "service" },
+    { "id": "fl-ord", "label": "Orders", "kind": "service" },
+    { "id": "fl-pay", "label": "Payments", "kind": "service" },
+    { "id": "fl-db", "label": "Ledger", "kind": "datastore" }
+  ],
+  "edges": [
+    { "from": "fl-gw", "to": "fl-auth" },
+    { "from": "fl-gw", "to": "fl-cat" },
+    { "from": "fl-gw", "to": "fl-ord" },
+    { "from": "fl-ord", "to": "fl-pay" },
+    { "from": "fl-pay", "to": "fl-db" }
+  ]
+}
+</script>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "fam-tree",
+  "title": "layout: tree",
+  "layout": "tree",
+  "legend": false,
+  "nodes": [
+    { "id": "ft-gw", "label": "Gateway", "kind": "lb", "tone": "accent" },
+    { "id": "ft-auth", "label": "Auth", "kind": "auth" },
+    { "id": "ft-cat", "label": "Catalog", "kind": "service" },
+    { "id": "ft-ord", "label": "Orders", "kind": "service" },
+    { "id": "ft-pay", "label": "Payments", "kind": "service" },
+    { "id": "ft-db", "label": "Ledger", "kind": "datastore" }
+  ],
+  "edges": [
+    { "from": "ft-gw", "to": "ft-auth" },
+    { "from": "ft-gw", "to": "ft-cat" },
+    { "from": "ft-gw", "to": "ft-ord" },
+    { "from": "ft-ord", "to": "ft-pay" },
+    { "from": "ft-pay", "to": "ft-db" }
+  ]
+}
+</script>
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "fam-radial",
+  "title": "layout: radial",
+  "layout": "radial",
+  "legend": false,
+  "nodes": [
+    { "id": "fr-gw", "label": "Gateway", "kind": "lb", "tone": "accent" },
+    { "id": "fr-auth", "label": "Auth", "kind": "auth" },
+    { "id": "fr-cat", "label": "Catalog", "kind": "service" },
+    { "id": "fr-ord", "label": "Orders", "kind": "service" },
+    { "id": "fr-pay", "label": "Payments", "kind": "service" },
+    { "id": "fr-db", "label": "Ledger", "kind": "datastore" }
+  ],
+  "edges": [
+    { "from": "fr-gw", "to": "fr-auth" },
+    { "from": "fr-gw", "to": "fr-cat" },
+    { "from": "fr-gw", "to": "fr-ord" },
+    { "from": "fr-gw", "to": "fr-pay" },
+    { "from": "fr-gw", "to": "fr-db" }
+  ]
+}
+</script>
+
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "fam-sequence",
+  "title": "layout: sequence",
+  "layout": "sequence",
+  "legend": false,
+  "nodes": [
+    { "id": "fs-gw", "label": "Gateway", "kind": "lb", "tone": "accent" },
+    { "id": "fs-auth", "label": "Auth", "kind": "auth" },
+    { "id": "fs-ord", "label": "Orders", "kind": "service" },
+    { "id": "fs-pay", "label": "Payments", "kind": "service" }
+  ],
+  "edges": [
+    { "id": "fs-1", "from": "fs-gw", "to": "fs-auth", "step": 1, "label": "verify token" },
+    { "id": "fs-2", "from": "fs-auth", "to": "fs-gw", "step": 2, "label": "claims" },
+    { "id": "fs-3", "from": "fs-gw", "to": "fs-ord", "step": 3, "label": "POST /orders" },
+    { "id": "fs-4", "from": "fs-ord", "to": "fs-pay", "step": 4, "label": "charge", "kind": "async" },
+    { "id": "fs-5", "from": "fs-pay", "to": "fs-ord", "step": 5, "label": "payment_intent.succeeded", "kind": "webhook" }
+  ]
+}
+</script>
+
+<h2>12 · Forced theme</h2>
+<p class="note">Diagrams follow the page's light/dark preference by default;
+<code>data-sysgram-theme="dark"</code> (or <code>"light"</code>) on the spec's script tag
+pins one. Dark is its own tuned palette, not an inversion.</p>
+<script type="application/sysgram+json" data-sysgram-theme="dark">
+{
+  "sysgram": "1",
+  "id": "dark-pinned",
+  "title": "Always dark",
+  "accent": "#8fa2ff",
+  "nodes": [
+    { "id": "moon", "label": "Night service", "kind": "scheduler", "tone": "accent" },
+    { "id": "stars", "label": "Star index", "kind": "datastore" }
+  ],
+  "edges": [ { "from": "moon", "to": "stars", "label": "twinkle" } ]
+}
+</script>
+
+<h2>13 · Validation feedback</h2>
+<p class="note">Broken specs never fail silently: errors render as a panel (and land in
+<code>window.sysgram.get(id).errors</code> + the console). This one references a node that
+doesn't exist and reuses an id.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light" data-sysgram-expect-errors>
+{
+  "sysgram": "1",
+  "id": "broken",
+  "title": "Deliberately broken",
+  "nodes": [
+    { "id": "a", "label": "A" },
+    { "id": "a", "label": "A again" }
+  ],
+  "edges": [ { "from": "a", "to": "ghost" } ]
+}
+</script>
+
+<p class="note">A violated assertion <code>rule</code> is also an error — the spec states
+an invariant its own edges contradict. Here the text says the cache is never written
+directly, but an edge does exactly that.</p>
+<script type="application/sysgram+json" data-sysgram-theme="light" data-sysgram-expect-errors>
+{
+  "sysgram": "1",
+  "id": "broken-rule",
+  "title": "Deliberately self-contradictory",
+  "nodes": [
+    { "id": "svc", "label": "Service" },
+    { "id": "cache", "label": "Cache", "kind": "cache" }
+  ],
+  "edges": [ { "id": "direct", "from": "svc", "to": "cache" } ],
+  "assertions": [
+    { "id": "no-direct-writes", "text": "The cache is never written directly.",
+      "rule": { "kind": "forbid-edge", "from": "svc", "to": "cache" } }
+  ]
+}
+</script>
+
+<script src="../runtime/sysgram.js"></script>
+</body>
+</html>

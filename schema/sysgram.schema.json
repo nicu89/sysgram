@@ -1,0 +1,249 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:sysgram:schema:v1",
+  "title": "Sysgram diagram spec v1",
+  "description": "Declarative system-diagram format. Canonical reference: sysgram/SPEC.md.",
+  "type": "object",
+  "required": ["sysgram", "id", "title", "nodes"],
+  "additionalProperties": false,
+  "properties": {
+    "sysgram": { "const": "1", "description": "Format version." },
+    "id": { "$ref": "#/definitions/ident" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "caption": { "type": "string" },
+    "direction": { "$ref": "#/definitions/direction" },
+    "layout": { "enum": ["layered", "tree", "radial", "sequence"] },
+    "arrange": { "enum": ["auto", "manual"] },
+    "route": { "enum": ["smart", "simple"] },
+    "accent": { "$ref": "#/definitions/hexColor" },
+    "accentDark": { "$ref": "#/definitions/hexColor" },
+    "legend": { "enum": ["auto", true, false] },
+    "iconCatalog": {
+      "type": "object",
+      "description": "Reusable SVG assets: id -> {src, label, source}. Presentation only.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["src"],
+        "additionalProperties": false,
+        "properties": {
+          "src": { "type": "string", "description": "Relative .svg path or image/svg+xml data URI." },
+          "label": { "type": "string" },
+          "source": { "type": "string", "description": "Provenance note." }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/node" }
+    },
+    "groups": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/group" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/edge" }
+    },
+    "flows": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/flow" }
+    },
+    "assertions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/assertion" }
+    },
+    "meta": { "type": "object", "description": "Free-form machine-readable passthrough." }
+  },
+  "definitions": {
+    "ident": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Kebab-case identifier."
+    },
+    "direction": { "enum": ["right", "down"] },
+    "hexColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "tone": { "enum": ["default", "accent", "muted", "warn"] },
+    "nodeKind": {
+      "enum": [
+        "service", "browser", "user", "datastore", "cache", "queue", "bus",
+        "worker", "scheduler", "storage", "vault", "email", "auth", "lb",
+        "cdn", "function", "ai", "external", "observability", "note"
+      ],
+      "description": "Unknown kinds render as service + warning; schema pins the catalog."
+    },
+    "edgeKind": {
+      "enum": ["sync", "data", "async", "webhook", "auth", "schedule", "telemetry", "dep", "assoc", "isolation"]
+    },
+    "side": { "enum": ["l", "r", "t", "b"] },
+    "facts": {
+      "type": "object",
+      "description": "Structured key→scalar semantics (protocol, trust, consistency, owner, …).",
+      "additionalProperties": { "type": ["string", "number", "boolean"] }
+    },
+    "subText": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "node": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/ident" },
+        "label": { "type": "string" },
+        "sub": { "$ref": "#/definitions/subText" },
+        "kind": { "$ref": "#/definitions/nodeKind" },
+        "tone": { "$ref": "#/definitions/tone" },
+        "tint": { "type": "boolean" },
+        "badges": { "type": "array", "items": { "type": "string" } },
+        "href": { "type": "string" },
+        "desc": { "type": "string" },
+        "rank": { "type": "integer", "minimum": 0 },
+        "order": { "type": "number" },
+        "band": { "type": "boolean" },
+        "at": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "Authored top-left [x, y] — only with arrange:\"manual\"."
+        },
+        "facts": { "$ref": "#/definitions/facts" },
+        "icon": {
+          "oneOf": [
+            { "$ref": "#/definitions/ident" },
+            { "type": "array", "items": { "$ref": "#/definitions/ident" }, "minItems": 1, "maxItems": 2 }
+          ],
+          "description": "iconCatalog reference(s); presentation only, glyph fallback."
+        }
+      }
+    },
+    "group": {
+      "type": "object",
+      "required": ["id", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/ident" },
+        "label": { "type": "string" },
+        "sub": { "type": "string" },
+        "kind": { "enum": ["zone", "platform", "tier", "trust-boundary", "network", "account", "region", "lane"] },
+        "style": { "enum": ["dashed", "solid", "tint"] },
+        "tone": { "$ref": "#/definitions/tone" },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/ident" }
+        },
+        "direction": { "$ref": "#/definitions/direction" },
+        "desc": { "type": "string" },
+        "href": { "type": "string" },
+        "rank": { "type": "integer", "minimum": 0 },
+        "order": { "type": "number" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["from", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/ident" },
+        "from": { "$ref": "#/definitions/ident" },
+        "to": { "$ref": "#/definitions/ident" },
+        "label": { "type": "string" },
+        "kind": { "$ref": "#/definitions/edgeKind" },
+        "both": { "type": "boolean" },
+        "tone": { "enum": ["accent", "muted", "warn"] },
+        "routing": { "enum": ["auto", "curve", "ortho", "straight"] },
+        "step": { "type": "integer", "minimum": 1 },
+        "labelAt": { "type": "number", "minimum": 0, "maximum": 1 },
+        "fromSide": { "$ref": "#/definitions/side" },
+        "toSide": { "$ref": "#/definitions/side" },
+        "facts": { "$ref": "#/definitions/facts" },
+        "desc": { "type": "string" }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "required": ["id", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/ident" },
+        "text": { "type": "string", "minLength": 1 },
+        "refs": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ident" },
+          "description": "Node/group/edge ids this rule is about."
+        },
+        "rule": { "$ref": "#/definitions/assertionRule" }
+      }
+    },
+    "assertionRule": {
+      "description": "Optional executable form of the assertion — validate() proves it against the edge graph (isolation edges carry no flow). Violations are errors.",
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "from", "to"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "forbid-edge" },
+            "from": { "$ref": "#/definitions/ident" },
+            "to": { "$ref": "#/definitions/ident" },
+            "both": { "type": "boolean", "description": "Also forbid the reverse direction." }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "from", "to"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "forbid-path" },
+            "from": { "$ref": "#/definitions/ident" },
+            "to": { "$ref": "#/definitions/ident" },
+            "both": { "type": "boolean", "description": "Also forbid the reverse direction." }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "from", "to", "via"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "only-via" },
+            "from": { "$ref": "#/definitions/ident" },
+            "to": { "$ref": "#/definitions/ident" },
+            "via": { "$ref": "#/definitions/ident" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "from", "to"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "require-edge" },
+            "from": { "$ref": "#/definitions/ident" },
+            "to": { "$ref": "#/definitions/ident" },
+            "edgeKind": { "$ref": "#/definitions/edgeKind" }
+          }
+        }
+      ]
+    },
+    "flow": {
+      "type": "object",
+      "required": ["id", "label", "steps"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/definitions/ident" },
+        "label": { "type": "string" },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/ident" }
+        },
+        "desc": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sysgram — hello</title>
+<style>
+  body { margin: 2rem auto; max-width: 920px; padding: 0 1rem;
+         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+         background: #fff; color: #171a21; }
+</style>
+</head>
+<body>
+<h1>Hello, sysgram</h1>
+<p>The smallest possible diagram page. Copy this file to start a new one — the JSON block
+below is the diagram; the script include renders it.</p>
+
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "hello",
+  "title": "Hello system",
+  "description": "A browser calls an API, which reads Postgres.",
+  "nodes": [
+    { "id": "web", "label": "Web app",  "kind": "browser",   "sub": "any client" },
+    { "id": "api", "label": "API",      "kind": "service",   "tone": "accent", "desc": "The only writer." },
+    { "id": "db",  "label": "Postgres", "kind": "datastore" }
+  ],
+  "edges": [
+    { "from": "web", "to": "api", "label": "REST/JSON" },
+    { "from": "api", "to": "db",  "label": "SQL" }
+  ]
+}
+</script>
+
+<script src="../runtime/sysgram.js"></script>
+</body>
+</html>

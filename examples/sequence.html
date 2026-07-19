@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fictional sequence example — Sysgram</title>
+<style>
+  body { margin: 2.5rem auto 5rem; max-width: 980px; padding: 0 1.2rem;
+         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         background: #fff; color: #171a21; line-height: 1.55; }
+  h1 { font-size: 1.45rem; }
+  p.note { color: #5a6372; font-size: .88rem; max-width: 76ch; }
+</style>
+</head>
+<body>
+<h1>Parcel Finch checkout</h1>
+<p class="note"><strong>Fictional example.</strong> Parcel Finch is an invented delivery
+application. The sequence shows a synchronous request followed by asynchronous fulfillment
+without describing any real product or organization.</p>
+
+<script type="application/sysgram+json" data-sysgram-theme="light">
+{
+  "sysgram": "1",
+  "id": "parcel-finch-checkout",
+  "title": "Checkout and fulfillment",
+  "description": "A shopper signs in, submits a parcel order, and receives an immediate acceptance. The API commits the order and an outbox message together; a worker later reserves a route and the browser polls the final status.",
+  "caption": "Fictional sequence example. Message rows are ordered by step; participant columns follow node declaration order.",
+  "layout": "sequence",
+  "accent": "#2d63c8",
+  "meta": { "fictional": true, "example": "sequence" },
+  "nodes": [
+    { "id": "shopper", "label": "Shopper", "kind": "user" },
+    { "id": "browser", "label": "Web app", "kind": "browser", "sub": "parcel-finch.invalid" },
+    { "id": "identity", "label": "Wren Identity", "kind": "external", "sub": "fictional OIDC" },
+    { "id": "api", "label": "Parcel API", "kind": "service", "tone": "accent" },
+    { "id": "database", "label": "Order database", "kind": "datastore" },
+    { "id": "queue", "label": "Fulfillment queue", "kind": "queue" },
+    { "id": "worker", "label": "Route worker", "kind": "worker" }
+  ],
+  "edges": [
+    { "id": "open", "step": 1, "from": "shopper", "to": "browser", "kind": "sync", "label": "open checkout" },
+    { "id": "authorize", "step": 2, "from": "browser", "to": "identity", "kind": "auth", "label": "authorize" },
+    { "id": "token", "step": 3, "from": "identity", "to": "browser", "kind": "auth", "label": "authorization code" },
+    { "id": "submit", "step": 4, "from": "browser", "to": "api", "kind": "sync", "label": "POST /orders" },
+    { "id": "commit", "step": 5, "from": "api", "to": "database", "kind": "data", "label": "order + outbox · one transaction" },
+    { "id": "committed", "step": 6, "from": "database", "to": "api", "kind": "data", "label": "committed" },
+    { "id": "accepted", "step": 7, "from": "api", "to": "browser", "kind": "sync", "label": "202 accepted" },
+    { "id": "enqueue", "step": 8, "from": "database", "to": "queue", "kind": "async", "label": "committed outbox event" },
+    { "id": "consume", "step": 9, "from": "queue", "to": "worker", "kind": "async", "label": "reserve route" },
+    { "id": "record", "step": 10, "from": "worker", "to": "database", "kind": "data", "label": "fulfillment ready" },
+    { "id": "poll", "step": 11, "from": "browser", "to": "api", "kind": "sync", "label": "GET /orders/:id" },
+    { "id": "read", "step": 12, "from": "api", "to": "database", "kind": "data", "label": "read status" },
+    { "id": "status-row", "step": 13, "from": "database", "to": "api", "kind": "data", "label": "ready" },
+    { "id": "ready", "step": 14, "from": "api", "to": "browser", "kind": "sync", "label": "200 ready" }
+  ],
+  "flows": [
+    { "id": "request", "label": "Synchronous acceptance", "steps": ["open", "authorize", "token", "submit", "commit", "committed", "accepted"] },
+    { "id": "fulfillment", "label": "Asynchronous fulfillment", "steps": ["enqueue", "consume", "record"] },
+    { "id": "status", "label": "Status refresh", "steps": ["poll", "read", "status-row", "ready"] }
+  ],
+  "assertions": [
+    { "id": "ack-not-completion", "text": "The 202 response acknowledges a committed order; fulfillment completes asynchronously.",
+      "refs": ["commit", "accepted", "enqueue", "consume"] }
+  ]
+}
+</script>
+
+<script src="../runtime/sysgram.js"></script>
+</body>
+</html>
