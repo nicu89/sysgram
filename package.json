@@ -2,6 +2,7 @@
   "name": "sysgram",
   "version": "0.1.0",
   "description": "Dependency-free declarative system diagrams rendered from embedded JSON specs.",
+  "license": "Apache-2.0",
   "main": "runtime/sysgram.js",
   "exports": {
     ".": "./runtime/sysgram.js",
@@ -16,6 +17,9 @@
     "schema/",
     "scripts/",
     "assets/",
+    "LICENSE",
+    "NOTICE",
+    "THIRD_PARTY_NOTICES.md",
     "SPEC.md",
     "LAYOUT.md",
     "README.md"

@@ -125,3 +125,10 @@ changes should be test-driven and evaluated with both the geometry gate and metr
 
 Additive format changes remain in spec version `1`; breaking changes require a new major
 format version and a preserved v1 parse path.
+
+## License
+
+Except for separately identified third-party materials, Sysgram's original source code
+and documentation are licensed under the [Apache License 2.0](LICENSE). See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for exclusions and attribution,
+including the AWS Architecture Icons under `assets/aws/`.
